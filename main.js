@@ -267,7 +267,9 @@ header.appendChild(nav);
 
 
 // Listado de productos
-
+const mostrarProductos = (productosDecoracion) => {
+  const contenedor = document.querySelector("#productos");
+  contenedor.innerHTML = "";
 for(const producto of productosDecoracion){
     const item = document.createElement("div");
     item.className = "fichaProducto"
@@ -280,21 +282,36 @@ for(const producto of productosDecoracion){
     <p>Vendedor: ${producto.vendedor}</p>
     <button class="añadir"> 🛒 Añadir al carrito </button>
     `;
-    document.querySelector("#productos").appendChild(item);
+    contenedor.appendChild(item);
+}
 }
 // Menú aside. Filtros
 const categorias = ["Todas las categorías"];
 const disponibles = ["Disponible", "Agotado"];
+const vendedores = ["Todos los vendedores"];
+const precios = ["Ascendente", "Descendente"];
+const botonReset = document.createElement("button");
+botonReset.textContent = "Limpiar filtros";
+botonReset.className = "btn-reset";
+document.querySelector("#side").appendChild(botonReset);
 
 for (let producto of productosDecoracion){
     if (!categorias.includes(producto.categoria)){
         categorias.push(producto.categoria);
     }
+    if (!vendedores.includes(producto.vendedor)){
+        vendedores.push(producto.vendedor);
+    }
+    
 }
 const filtroCategoria = document.createElement("select");
-const filtroDisponibilidad = document.createElement("select");
-document.querySelector("#side").appendChild(filtroCategoria);
-document.querySelector("#side").appendChild(filtroDisponibilidad);
+const filtroStock = document.createElement("select");
+const filtroVendedor = document.createElement("select");
+const filtroPrecio = document.createElement("select");
+document.querySelector("#filtroCategoria").appendChild(filtroCategoria);
+document.querySelector("#filtroStock").appendChild(filtroStock);
+document.querySelector("#filtroVendedor").appendChild(filtroVendedor);
+document.querySelector("#filtroPrecio").appendChild(filtroPrecio);
 
 for (let categoria of categorias){
     const option = document.createElement("option");
@@ -306,6 +323,65 @@ for (let disponible of disponibles){
     const option = document.createElement("option");
     option.value = disponible;
     option.textContent = disponible;
-    filtroDisponibilidad.appendChild(option);
+    filtroStock.appendChild(option);
 }
+for (let vendedor of vendedores){
+    const option = document.createElement("option");
+    option.value = vendedor;
+    option.textContent = vendedor;
+    filtroVendedor.appendChild(option);
+}
+for (let precio of precios){
+    const option = document.createElement("option");
+    option.value = precio;
+    option.textContent = precio;
+    filtroPrecio.appendChild(option);
+}
+
+mostrarProductos(productosDecoracion);
+
+const aplicarFiltros = () => {
+  const categoria = filtroCategoria.value;
+  const stock = filtroStock.value;
+  const vendedor = filtroVendedor.value;
+  const ordenPrecio = filtroPrecio.value;
+
+  let filtrados = [...productosDecoracion];
+
+  if (categoria !== "Todas las categorías") {
+    filtrados = filtrados.filter(p => p.categoria === categoria);
+  }
+
+  if (stock === "Disponible") {
+    filtrados = filtrados.filter(p => p.disponible === true);
+  } else if (stock === "Agotado") {
+    filtrados = filtrados.filter(p => p.disponible === false);
+  }
+
+  if (vendedor !== "Todos los vendedores") {
+    filtrados = filtrados.filter(p => p.vendedor === vendedor);
+  }
+
+  if (ordenPrecio === "Ascendente") {
+    filtrados.sort((a, b) => a.precio - b.precio);
+  } else if (ordenPrecio === "Descendente") {
+    filtrados.sort((a, b) => b.precio - a.precio);
+  }
+
+  mostrarProductos(filtrados);
+};
+
+botonReset.addEventListener("click", () => {
+  filtroCategoria.selectedIndex = 0;
+  filtroStock.selectedIndex = 0;
+  filtroVendedor.selectedIndex = 0;
+  filtroPrecio.selectedIndex = 0;
+  mostrarProductos(productosDecoracion);
+});
+
+filtroCategoria.addEventListener("change", aplicarFiltros);
+filtroStock.addEventListener("change", aplicarFiltros);
+filtroVendedor.addEventListener("change", aplicarFiltros);
+filtroPrecio.addEventListener("change", aplicarFiltros);
+
 
